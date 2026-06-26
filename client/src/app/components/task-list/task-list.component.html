@@ -1,0 +1,15 @@
+<section class="task-list-shell">
+  <div class="task-list-header">
+    <h2>Tasks</h2>
+    <button type="button" (click)="addTask()">Add Task</button>
+  </div>
+
+  <ul class="task-list">
+    <li class="task-card" *ngFor="let task of tasks">
+      <div>
+        <h3>{{ task.title }}</h3>
+        <p>Status: {{ task.status }}</p>
+      </div>
+    </li>
+  </ul>
+</section>

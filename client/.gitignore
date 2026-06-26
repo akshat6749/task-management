@@ -1,0 +1,6 @@
+*.env
+dist
+.angular
+node_modules
+
+.env

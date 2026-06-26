@@ -1,0 +1,30 @@
+:root {
+  color-scheme: light;
+  --bg: #f4efe7;
+  --panel: rgba(255, 255, 255, 0.82);
+  --text: #17202a;
+  --muted: #5f6b77;
+  --accent: #1f6feb;
+  --accent-soft: rgba(31, 111, 235, 0.12);
+  --border: rgba(23, 32, 42, 0.1);
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  font-family: 'Aptos', 'Helvetica Neue', Arial, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(31, 111, 235, 0.16), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(255, 184, 77, 0.2), transparent 24%),
+    var(--bg);
+  color: var(--text);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+}
