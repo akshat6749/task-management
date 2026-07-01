@@ -1,9 +1,11 @@
 import { Router } from 'express';
+import { authenticateJWT } from '../middleware/auth.middleware';
 import { createTask, deleteTask, getTaskById, getTasks, updateTask } from '../controllers/task.controller';
 
 const router = Router();
 
 // Incoming requests enter the router, pass to the controller, then fall through to centralized error handling if needed.
+router.use(authenticateJWT);
 router.get('/', getTasks);
 router.get('/:id', getTaskById);
 router.post('/', createTask);

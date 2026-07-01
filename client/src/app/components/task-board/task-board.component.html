@@ -1,0 +1,97 @@
+<section class="board-shell">
+  <div class="board-header">
+    <div>
+      <p class="eyebrow">Task board</p>
+      <h2>Workflow Board</h2>
+      <p class="lede">Manage tasks across To Do, In Progress, and Done.</p>
+    </div>
+
+    <button type="button" class="primary-btn" (click)="toggleCreateForm()">
+      {{ showCreateForm ? 'Close Form' : 'Add Task' }}
+    </button>
+  </div>
+
+  <section class="create-panel" *ngIf="showCreateForm">
+    <h3>Create Task</h3>
+
+    <form class="create-form" (ngSubmit)="submitTask()">
+      <label>
+        <span>Title</span>
+        <input
+          type="text"
+          name="title"
+          [(ngModel)]="title"
+          placeholder="Enter task title"
+        />
+      </label>
+
+      <label>
+        <span>Description</span>
+        <textarea
+          name="description"
+          [(ngModel)]="description"
+          rows="4"
+          placeholder="Enter task description"
+        ></textarea>
+      </label>
+
+      <div class="form-actions">
+        <button type="submit" class="primary-btn">Submit</button>
+      </div>
+    </form>
+  </section>
+
+  <div class="board-grid">
+    <section class="board-column">
+      <header class="column-header">
+        <h3>To Do</h3>
+        <span>{{ todoTasks.length }}</span>
+      </header>
+
+      <article class="task-card" *ngFor="let task of todoTasks">
+        <h4>{{ task.title }}</h4>
+        <p>{{ task.description || 'No description provided.' }}</p>
+
+        <div class="task-actions">
+          <button type="button" (click)="changeStatus(task.id, 'IN_PROGRESS')">Move to In Progress</button>
+          <button type="button" class="danger" (click)="onDeleteTask(task.id)">Delete</button>
+        </div>
+      </article>
+    </section>
+
+    <section class="board-column">
+      <header class="column-header">
+        <h3>In Progress</h3>
+        <span>{{ inProgressTasks.length }}</span>
+      </header>
+
+      <article class="task-card" *ngFor="let task of inProgressTasks">
+        <h4>{{ task.title }}</h4>
+        <p>{{ task.description || 'No description provided.' }}</p>
+
+        <div class="task-actions">
+          <button type="button" (click)="changeStatus(task.id, 'TODO')">Move to To Do</button>
+          <button type="button" (click)="changeStatus(task.id, 'DONE')">Move to Done</button>
+          <button type="button" class="danger" (click)="onDeleteTask(task.id)">Delete</button>
+        </div>
+      </article>
+    </section>
+
+    <section class="board-column">
+      <header class="column-header">
+        <h3>Done</h3>
+        <span>{{ doneTasks.length }}</span>
+      </header>
+
+      <article class="task-card" *ngFor="let task of doneTasks">
+        <h4>{{ task.title }}</h4>
+        <p>{{ task.description || 'No description provided.' }}</p>
+
+        <div class="task-actions">
+          <button type="button" (click)="changeStatus(task.id, 'IN_PROGRESS')">Move to In Progress</button>
+          <button type="button" class="danger" (click)="onDeleteTask(task.id)">Delete</button>
+        </div>
+      </article>
+    </section>
+  </div>
+</section>

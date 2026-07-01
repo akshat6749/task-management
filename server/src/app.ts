@@ -1,6 +1,7 @@
 import cors from 'cors';
 import express from 'express';
-import taskRoutes from './routes/task.routes';
+import authRoutes from './routes/auth.routes';
+import router from './routes/task.routes';
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware';
 
 const app = express();
@@ -12,7 +13,8 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
-app.use('/api/tasks', taskRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/tasks', router);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
