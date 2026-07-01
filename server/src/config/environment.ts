@@ -21,5 +21,7 @@ export const env = {
   dbPassword: getEnv('DB_PASSWORD', 'password'),
   redisHost: getEnv('REDIS_HOST', '127.0.0.1'),
   redisPort: Number(getEnv('REDIS_PORT', '6379')),
-  redisPassword: process.env.REDIS_PASSWORD || undefined
+  redisPassword: process.env.REDIS_PASSWORD || undefined,
+  jwtSecret: getEnv('JWT_SECRET', 'replace-with-a-long-random-secret'),
+  jwtExpiresIn: getEnv('JWT_EXPIRES_IN', '1d')
 };

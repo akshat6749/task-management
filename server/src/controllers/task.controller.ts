@@ -20,7 +20,17 @@ function isTaskStatus(value: unknown): value is TaskStatus {
 
 export async function getTasks(_req: Request, res: Response): Promise<void> {
   try {
-    const tasks = await Task.findAll({ order: [['createdAt', 'DESC']] });
+    const userId = _req.user?.id;
+
+    if (!userId) {
+      res.status(401).json({ message: 'Unauthorized.' });
+      return;
+    }
+
+    const tasks = await Task.findAll({
+      where: { userId },
+      order: [['createdAt', 'DESC']]
+    });
     res.status(200).json(tasks);
   } catch (error) {
     console.error('Failed to fetch tasks:', error);
@@ -30,14 +40,20 @@ export async function getTasks(_req: Request, res: Response): Promise<void> {
 
 export async function getTaskById(req: Request, res: Response): Promise<void> {
   try {
+    const userId = req.user?.id;
     const taskId = parseTaskId(req.params.id);
+
+    if (!userId) {
+      res.status(401).json({ message: 'Unauthorized.' });
+      return;
+    }
 
     if (!taskId) {
       res.status(400).json({ message: 'Task id must be a positive integer.' });
       return;
     }
 
-    const task = await Task.findByPk(taskId);
+    const task = await Task.findOne({ where: { id: taskId, userId } });
 
     if (!task) {
       res.status(404).json({ message: 'Task not found.' });
@@ -53,10 +69,16 @@ export async function getTaskById(req: Request, res: Response): Promise<void> {
 
 export async function createTask(req: Request, res: Response): Promise<void> {
   try {
-    const { title, description, status, userId } = req.body as Partial<TaskCreationAttributes> & {
+    const authenticatedUserId = req.user?.id;
+    const userEmail = req.user?.email;
+    const { title, description, status } = req.body as Partial<TaskCreationAttributes> & {
       status?: TaskStatus;
-      userId?: number | null;
     };
+
+    if (!authenticatedUserId || !userEmail) {
+      res.status(401).json({ message: 'Unauthorized.' });
+      return;
+    }
 
     if (!title || !title.trim()) {
       res.status(400).json({ message: 'Task title is required.' });
@@ -68,21 +90,16 @@ export async function createTask(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    if (userId !== undefined && userId !== null && (!Number.isInteger(userId) || userId <= 0)) {
-      res.status(400).json({ message: 'userId must be a positive integer or null.' });
-      return;
-    }
-
     const task = await Task.create({
       title: title.trim(),
       description: description ?? null,
       status: status ?? 'TODO',
-      userId: userId ?? null
+      userId: authenticatedUserId
     });
 
     await enqueueTaskAssignment({
       taskId: task.id,
-      assigneeEmail: 'team@example.com'
+      assigneeEmail: userEmail
     });
 
     res.status(201).json(task);
@@ -94,23 +111,28 @@ export async function createTask(req: Request, res: Response): Promise<void> {
 
 export async function updateTask(req: Request, res: Response): Promise<void> {
   try {
+    const userId = req.user?.id;
     const taskId = parseTaskId(req.params.id);
+
+    if (!userId) {
+      res.status(401).json({ message: 'Unauthorized.' });
+      return;
+    }
 
     if (!taskId) {
       res.status(400).json({ message: 'Task id must be a positive integer.' });
       return;
     }
 
-    const task = await Task.findByPk(taskId);
+    const task = await Task.findOne({ where: { id: taskId, userId } });
 
     if (!task) {
       res.status(404).json({ message: 'Task not found.' });
       return;
     }
 
-    const { title, description, status, userId } = req.body as Partial<TaskCreationAttributes> & {
+    const { title, description, status } = req.body as Partial<TaskCreationAttributes> & {
       status?: TaskStatus;
-      userId?: number | null;
     };
 
     if (title !== undefined) {
@@ -135,15 +157,6 @@ export async function updateTask(req: Request, res: Response): Promise<void> {
       task.status = status;
     }
 
-    if (userId !== undefined) {
-      if (userId !== null && (!Number.isInteger(userId) || userId <= 0)) {
-        res.status(400).json({ message: 'userId must be a positive integer or null.' });
-        return;
-      }
-
-      task.userId = userId;
-    }
-
     await task.save();
 
     res.status(200).json(task);
@@ -155,14 +168,20 @@ export async function updateTask(req: Request, res: Response): Promise<void> {
 
 export async function deleteTask(req: Request, res: Response): Promise<void> {
   try {
+    const userId = req.user?.id;
     const taskId = parseTaskId(req.params.id);
+
+    if (!userId) {
+      res.status(401).json({ message: 'Unauthorized.' });
+      return;
+    }
 
     if (!taskId) {
       res.status(400).json({ message: 'Task id must be a positive integer.' });
       return;
     }
 
-    const task = await Task.findByPk(taskId);
+    const task = await Task.findOne({ where: { id: taskId, userId } });
 
     if (!task) {
       res.status(404).json({ message: 'Task not found.' });
